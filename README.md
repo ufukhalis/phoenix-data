@@ -21,7 +21,7 @@ Quick Start
 After installation project to your local, you should add as a dependency.
 
     <dependency>
-        <groupId>com.ufuk.phoenix</groupId>
+        <groupId>io.github.ufukhalis.phoenix</groupId>
         <artifactId>phoenix-data</artifactId>
         <version>0.0.1</version>
     </dependency>
