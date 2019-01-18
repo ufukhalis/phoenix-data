@@ -1,4 +1,4 @@
-package com.ufuk.phoenix;
+package io.github.ufukhalis.phoenix;
 
 public class PhoenixDataApplicationTests {
 

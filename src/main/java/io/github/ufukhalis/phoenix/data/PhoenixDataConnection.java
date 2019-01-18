@@ -1,4 +1,4 @@
-package com.ufuk.phoenix.data;
+package io.github.ufukhalis.phoenix.data;
 
 import io.vavr.control.Option;
 import io.vavr.control.Try;

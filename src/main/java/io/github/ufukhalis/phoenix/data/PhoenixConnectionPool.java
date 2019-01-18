@@ -1,5 +1,6 @@
-package com.ufuk.phoenix.data;
+package io.github.ufukhalis.phoenix.data;
 
+import io.vavr.API;
 import io.vavr.Predicates;
 import io.vavr.concurrent.Future;
 import io.vavr.control.Option;
@@ -48,7 +49,7 @@ public class PhoenixConnectionPool {
                 Case($(Predicates.allOf(checkConnectionSizePredicate)), () -> {
                     createNewConnection();
                     return CONNECTION_POOL.poll();}),
-                Case($(), () -> {
+                API.Case($(), () -> {
                     if (used < max) {
                         used++;
                         return phoenixDataConnection.connect();

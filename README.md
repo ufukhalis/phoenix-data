@@ -28,7 +28,7 @@ After installation project to your local, you should add as a dependency.
 
 Then you need to specify your `@SpringBootApplication` annotation.
 
-    @SpringBootApplication(scanBasePackages = {"com.ufuk.phoenix.*", "{this.is.your.base.package}"})
+    @SpringBootApplication(scanBasePackages = {"io.github.ufukhalis.phoenix.*", "{this.is.your.base.package}"})
 
 And you need to add HOME_HADOOP your path or you can specify like below
 

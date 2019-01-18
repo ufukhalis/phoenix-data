@@ -1,6 +1,6 @@
-package com.ufuk.phoenix.config;
+package io.github.ufukhalis.phoenix.config;
 
-import com.ufuk.phoenix.data.PhoenixDataConnection;
+import io.github.ufukhalis.phoenix.data.PhoenixDataConnection;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

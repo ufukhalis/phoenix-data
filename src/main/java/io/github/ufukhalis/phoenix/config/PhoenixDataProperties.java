@@ -1,4 +1,4 @@
-package com.ufuk.phoenix.config;
+package io.github.ufukhalis.phoenix.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

@@ -1,6 +1,6 @@
-package com.ufuk.phoenix.data;
+package io.github.ufukhalis.phoenix.data;
 
-import com.ufuk.phoenix.config.PhoenixDataProperties;
+import io.github.ufukhalis.phoenix.config.PhoenixDataProperties;
 import io.vavr.concurrent.Future;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
