@@ -77,7 +77,7 @@ Or async call
         //..
     });
 
-NOTE
+Note
 ---
 
 This project is still under development.
@@ -85,3 +85,8 @@ This project is still under development.
 For more information about Apache Phoenix, check the site https://phoenix.apache.org/
 
 For more information about vavr.io, check the site http://vavr-io.github.io
+
+License
+---
+
+All code in this repository is licensed under the Apache License, Version 2.0. See [LICENCE](./LICENSE).
