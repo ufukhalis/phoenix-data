@@ -5,4 +5,4 @@ sudo: false
 before_install:
   - chmod +x mvnw
 
-script: "mvn clean test"
+#script: "mvn clean test"
