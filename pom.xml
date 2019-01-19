@@ -10,7 +10,7 @@
     </parent>
     <groupId>io.github.ufukhalis.phoenix</groupId>
     <artifactId>phoenix-data</artifactId>
-    <version>0.0.2-SNAPSHOT</version>
+    <version>0.0.2</version>
     <name>phoenix-data</name>
     <description>Apache Phoenix Data for Spring Boot</description>
     <url>https://github.com/ufukhalis/phoenix-data</url>
@@ -36,6 +36,7 @@
     </developers>
 
     <scm>
+        <connection>scm:git:git://github.com/ufukhalis/phoenix-data.git</connection>
         <url>https://github.com/ufukhalis/phoenix-data/tree/master</url>
     </scm>
 
