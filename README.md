@@ -12,15 +12,11 @@ to Apache Phoenix and can execute the raw SQL queries. It has support for Async 
 
 This project uses the vavr library which is really good implement of functional Java.
 
-Installation
----
-
-For now, you can just clone the project to your local and using as a module or local maven artifacts.
 
 Quick Start
 ---
 
-After installation project to your local, you should add as a dependency.
+Add your project below dependency.
 
     <dependency>
         <groupId>io.github.ufukhalis.phoenix</groupId>

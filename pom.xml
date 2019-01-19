@@ -10,7 +10,7 @@
     </parent>
     <groupId>io.github.ufukhalis.phoenix</groupId>
     <artifactId>phoenix-data</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2-SNAPSHOT</version>
     <name>phoenix-data</name>
     <description>Apache Phoenix Data for Spring Boot</description>
     <url>https://github.com/ufukhalis/phoenix-data</url>
@@ -79,7 +79,6 @@
 
     <build>
         <plugins>
-            <!-- Your plugins here -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
