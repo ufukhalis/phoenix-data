@@ -1,5 +1,8 @@
 language: java
+
 sudo: false
+
 before_install:
   - chmod +x mvnw
+
 script: "mvn clean test"
