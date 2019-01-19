@@ -1,8 +1,8 @@
 language: java
+jdk:
+  - oraclejdk8
+os:
+  - linux
 
-sudo: false
-
-before_install:
-  - chmod +x mvnw
-
-#script: "mvn clean test"
+script:
+  - mvn test
