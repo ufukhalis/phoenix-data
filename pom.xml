@@ -129,7 +129,10 @@
     </build>
 
     <profiles>
-        <!-- GPG Signature on release -->
+        <!--
+            GPG Signature on release
+            mvn clean deploy -Prelease-sign-artifacts
+        -->
         <profile>
             <id>release-sign-artifacts</id>
             <activation>

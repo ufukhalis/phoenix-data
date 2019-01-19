@@ -16,7 +16,7 @@ This project uses the vavr library which is really good implement of functional 
 Quick Start
 ---
 
-Add your project below dependency.
+First add dependency to your project.
 
     <dependency>
         <groupId>io.github.ufukhalis.phoenix</groupId>
@@ -30,7 +30,7 @@ Then you need to specify your `@SpringBootApplication` annotation.
 
 And you need to add HOME_HADOOP your path or you can specify like below
 
-    System.setProperty("hadoop.home.dir", "C:\\hbase");
+    System.setProperty("hadoop.home.dir", "{hadoop.path}");
 
 After then you need to add below properties to your application.properties file.
 
