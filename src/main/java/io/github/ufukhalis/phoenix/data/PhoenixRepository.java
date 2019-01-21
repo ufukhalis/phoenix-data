@@ -3,6 +3,7 @@ package io.github.ufukhalis.phoenix.data;
 import io.github.ufukhalis.phoenix.config.PhoenixDataProperties;
 import io.github.ufukhalis.phoenix.mapper.AnnotationResolver;
 import io.github.ufukhalis.phoenix.mapper.EntityInfo;
+import io.github.ufukhalis.phoenix.mapper.QueryResolver;
 import io.vavr.collection.List;
 import io.vavr.concurrent.Future;
 import io.vavr.control.Option;
@@ -67,15 +68,20 @@ public class PhoenixRepository <T, ID> {
 
     public T save(T entity) {
         final EntityInfo entityInfo = new AnnotationResolver().resolve(entity);
-        // TODO convert entity info to raw sql
-        throw new RuntimeException("Not implemented yet");
+        final String upsertSql = QueryResolver.toCreateTable(entityInfo);
+
+        executeUpdate(upsertSql);
+
+        return entity;
     }
 
     public Iterable<T> save(Iterable<T> entities) {
         final List<EntityInfo> entityInfoList = List.ofAll(entities)
                 .map(entity -> new AnnotationResolver().resolve(entity));
-        // TODO convert entity info to raw sql
-        throw new RuntimeException("Not implemented yet");
+
+        entityInfoList.map(QueryResolver::toCreateTable)
+                .map(this::executeUpdate);
+        return entities;
     }
 
     public T find(ID primaryKey) {

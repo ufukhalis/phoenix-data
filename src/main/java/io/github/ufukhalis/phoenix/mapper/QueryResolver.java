@@ -1,5 +1,7 @@
 package io.github.ufukhalis.phoenix.mapper;
 
+import io.vavr.collection.List;
+
 import static io.github.ufukhalis.phoenix.util.Predicates.*;
 import static io.vavr.API.*;
 
@@ -38,7 +40,21 @@ public final class QueryResolver {
     public static String toSaveEntity(EntityInfo entityInfo) {
         final String tableName = entityInfo.getTableName();
 
-        return "";
+        final List<ColumnInfo> definedColumns = entityInfo.getColumnInfo()
+                .filter(columnInfo -> columnInfo.getColumnValue().isDefined());
+
+        final String columnDetails = definedColumns
+                .map(ColumnInfo::getColumnName)
+                .mkString(",");
+
+        final String columnValues = definedColumns
+                .map(columnInfo -> resolveTypeForSQLValue(columnInfo.getColumnValue().get()))
+                .mkString(",");
+
+        return RAW_UPSERT_TABLE_QUERY
+                .replace(HOLDER_TABLE_NAME, tableName)
+                .replace(HOLDER_COLUMN_DETAILS, columnDetails)
+                .replace(HOLDER_COLUMN_VALUES, columnValues);
     }
 
     private static String resolveTypeForSQL(Class<?> fieldClass) {
@@ -50,6 +66,15 @@ public final class QueryResolver {
                 Case($(isInstanceOfLong), () ->  " bigint"),
                 Case($(isInstanceOfBoolean), () ->  " tinyint"),
                 Case($(), o -> { throw new RuntimeException("Field class type not found, please give valid field class type."); })
+        );
+    }
+
+    private static String resolveTypeForSQLValue(Object object) {
+        final Class<?> objectClass = object.getClass();
+
+        return Match(objectClass).of(
+                Case($(isInstanceOfString), () -> "'"  + object + "'"),
+                Case($(), () -> object + "")
         );
     }
 
