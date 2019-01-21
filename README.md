@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/ufukhalis/phoenix-data.svg?branch=master)](https://travis-ci.com/ufukhalis/phoenix-data)
+[![Build Status](https://travis-ci.com/ufukhalis/phoenix-data.svg?branch=master)](https://travis-ci.com/ufukhalis/phoenix-data) [![Coverage Status](https://coveralls.io/repos/github/ufukhalis/phoenix-data/badge.svg)](https://coveralls.io/github/ufukhalis/phoenix-data)
 
 Phoenix Data 
 ===================
