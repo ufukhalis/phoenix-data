@@ -2,6 +2,7 @@ package io.github.ufukhalis.phoenix.data;
 
 import io.github.ufukhalis.phoenix.config.PhoenixDataProperties;
 import io.github.ufukhalis.phoenix.mapper.AnnotationResolver;
+import io.github.ufukhalis.phoenix.mapper.ColumnInfo;
 import io.github.ufukhalis.phoenix.mapper.EntityInfo;
 import io.github.ufukhalis.phoenix.mapper.QueryResolver;
 import io.vavr.collection.List;
@@ -68,7 +69,7 @@ public class PhoenixRepository <T, ID> {
 
     public T save(T entity) {
         final EntityInfo entityInfo = new AnnotationResolver().resolve(entity);
-        final String upsertSql = QueryResolver.toCreateTable(entityInfo);
+        final String upsertSql = QueryResolver.toSaveEntity(entityInfo);
 
         executeUpdate(upsertSql);
 
@@ -79,13 +80,24 @@ public class PhoenixRepository <T, ID> {
         final List<EntityInfo> entityInfoList = List.ofAll(entities)
                 .map(entity -> new AnnotationResolver().resolve(entity));
 
-        entityInfoList.map(QueryResolver::toCreateTable)
+        entityInfoList.map(QueryResolver::toSaveEntity)
                 .map(this::executeUpdate);
         return entities;
     }
 
     public T find(ID primaryKey) {
         final EntityInfo entityInfo = new AnnotationResolver().resolveClass(entityClass, Option.none());
+
+        final String rawSql = QueryResolver.toFind(entityInfo, primaryKey.toString());
+
+        final ResultSet resultSet = executeQuery(rawSql);
+//
+//        Try.of(() -> entityClass.getConstructor().newInstance())
+//                .map(entity -> {
+//                   entity.getClass().getDeclaredFields();
+//                   resultSet.get
+//                });
+
         throw new RuntimeException("Not implemented yet");
     }
 }

@@ -10,6 +10,7 @@ public final class QueryResolver {
     private static final String HOLDER_TABLE_NAME = "$table_name";
     private static final String HOLDER_COLUMN_DETAILS = "$column_details";
     private static final String HOLDER_COLUMN_VALUES = "$column_values";
+    private static final String HOLDER_CONDITIONS = "$conditions";
 
     private static final String RAW_CREATE_TABLE_QUERY =
             "create table if not exists " + HOLDER_TABLE_NAME + " (" + HOLDER_COLUMN_DETAILS + ")";
@@ -19,6 +20,9 @@ public final class QueryResolver {
 
     private static final String RAW_UPSERT_TABLE_QUERY =
             "upsert into " + HOLDER_TABLE_NAME + "(" + HOLDER_COLUMN_DETAILS + ") VALUES(" + HOLDER_COLUMN_VALUES + ")";
+
+    public static final String RAW_FIND_ONE_QUERY =
+            "select * from " + HOLDER_TABLE_NAME + " where " + HOLDER_CONDITIONS + " limit 1";
 
     public static String toCreateTable(EntityInfo entityInfo) {
         final String tableName = entityInfo.getTableName();
@@ -55,6 +59,18 @@ public final class QueryResolver {
                 .replace(HOLDER_TABLE_NAME, tableName)
                 .replace(HOLDER_COLUMN_DETAILS, columnDetails)
                 .replace(HOLDER_COLUMN_VALUES, columnValues);
+    }
+
+    public static String toFind(EntityInfo entityInfo, String primaryKeyValue) {
+        final String tableName = entityInfo.getTableName();
+
+        final ColumnInfo primaryKeyColumn = entityInfo.getColumnInfo().filter(ColumnInfo::isPrimaryKey).get();
+
+        final String conditions = primaryKeyColumn.getColumnName() + "=" + primaryKeyValue;
+
+        return RAW_FIND_ONE_QUERY
+                .replace(HOLDER_TABLE_NAME, tableName)
+                .replace(HOLDER_CONDITIONS, conditions);
     }
 
     private static String resolveTypeForSQL(Class<?> fieldClass) {
