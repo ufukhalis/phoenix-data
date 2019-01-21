@@ -20,7 +20,7 @@ public class AnnotationResolver {
         return List.ofAll(classes).map(c -> resolveClass(c, Option.none()));
     }
 
-    private EntityInfo resolveClass(Class<?> objectClass, Option<Object> maybeObject) {
+    public EntityInfo resolveClass(Class<?> objectClass, Option<Object> maybeObject) {
         final String entityName = objectClass.getAnnotation(Entity.class).value();
 
         final List<ColumnInfo> columnInfoList =

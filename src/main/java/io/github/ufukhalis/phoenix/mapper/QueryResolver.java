@@ -1,7 +1,5 @@
 package io.github.ufukhalis.phoenix.mapper;
 
-import io.vavr.Tuple;
-
 import static io.github.ufukhalis.phoenix.util.Predicates.*;
 import static io.vavr.API.*;
 
@@ -39,10 +37,6 @@ public final class QueryResolver {
 
     public static String toSaveEntity(EntityInfo entityInfo) {
         final String tableName = entityInfo.getTableName();
-
-        entityInfo.getColumnInfo()
-                .map(columnInfo -> Tuple.of(columnInfo.getColumnName(), columnInfo.getColumnValue()));
-
 
         return "";
     }

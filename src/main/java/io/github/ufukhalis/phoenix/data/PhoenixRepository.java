@@ -3,6 +3,7 @@ package io.github.ufukhalis.phoenix.data;
 import io.github.ufukhalis.phoenix.config.PhoenixDataProperties;
 import io.github.ufukhalis.phoenix.mapper.AnnotationResolver;
 import io.github.ufukhalis.phoenix.mapper.EntityInfo;
+import io.vavr.collection.List;
 import io.vavr.concurrent.Future;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
@@ -11,20 +12,26 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Repository;
 
+import java.lang.reflect.ParameterizedType;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 @Repository
 @EnableConfigurationProperties(PhoenixDataProperties.class)
-public class PhoenixRepository <T> {
+public class PhoenixRepository <T, ID> {
 
     private final Logger logger = LoggerFactory.getLogger(PhoenixRepository.class);
 
     private PhoenixConnectionPool phoenixConnectionPool;
 
+    private Class<T> entityClass;
+    private Class<ID> primaryKeyClass;
+
     public PhoenixRepository(PhoenixConnectionPool phoenixConnectionPool) {
         this.phoenixConnectionPool = phoenixConnectionPool;
+        this.entityClass = (Class<T>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+        this.primaryKeyClass = (Class<ID>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[1];
     }
 
     public int executeUpdate(final String sql) {
@@ -60,10 +67,19 @@ public class PhoenixRepository <T> {
 
     public T save(T entity) {
         final EntityInfo entityInfo = new AnnotationResolver().resolve(entity);
-        return null;
+        // TODO convert entity info to raw sql
+        throw new RuntimeException("Not implemented yet");
     }
 
     public Iterable<T> save(Iterable<T> entities) {
-        return null;
+        final List<EntityInfo> entityInfoList = List.ofAll(entities)
+                .map(entity -> new AnnotationResolver().resolve(entity));
+        // TODO convert entity info to raw sql
+        throw new RuntimeException("Not implemented yet");
+    }
+
+    public T find(ID primaryKey) {
+        final EntityInfo entityInfo = new AnnotationResolver().resolveClass(entityClass, Option.none());
+        throw new RuntimeException("Not implemented yet");
     }
 }
