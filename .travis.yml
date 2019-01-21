@@ -5,4 +5,5 @@ sudo: false
 before_install:
   - chmod +x mvnw
 
-script: "mvn clean test"
+after_success:
+  - mvn clean cobertura:cobertura coveralls:report
