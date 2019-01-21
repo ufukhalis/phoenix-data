@@ -30,11 +30,12 @@ public class AnnotationResolver {
                             return field.isAnnotationPresent(Column.class);
                         }).map(field -> {
                             final String columnName = field.getAnnotation(Column.class).value();
-                            final Class columnClass = field.getDeclaringClass();
-                            final Object object = maybeObject.map(obj -> Try.of(() -> field.get(obj))
+                            final boolean isPrimaryKey = field.getAnnotation(Column.class).isPrimaryKey();
+                            final Class columnClass = field.getType();
+                            final Option<Object> object = maybeObject.map(obj -> Try.of(() -> Option.of(field.get(obj)))
                                     .getOrElseThrow(e -> new RuntimeException("Column value couldn't read", e)))
-                                    .get();
-                            return new ColumnInfo(columnName, columnClass, object);
+                                    .getOrElse(Option.none());
+                            return new ColumnInfo(columnName, columnClass, object, isPrimaryKey);
                         }
                 );
 

@@ -11,4 +11,5 @@ public @interface Column {
 
     String value();
 
+    boolean isPrimaryKey() default false;
 }
