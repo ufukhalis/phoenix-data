@@ -37,7 +37,8 @@ public final class QueryResolver {
                 Case($(isInstanceOfInteger), () ->  " integer"),
                 Case($(isInstanceOfDouble), () ->  " double"),
                 Case($(isInstanceOfFloat), () ->  " float"),
-                Case($(isInstanceOfLong), () ->  " long"),
+                Case($(isInstanceOfLong), () ->  " bigint"),
+                Case($(isInstanceOfBoolean), () ->  " tinyint"),
                 Case($(), o -> { throw new RuntimeException("Field class type not found, please give valid field class type."); })
         );
     }
