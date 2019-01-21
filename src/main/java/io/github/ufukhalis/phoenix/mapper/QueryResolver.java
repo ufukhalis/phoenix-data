@@ -1,5 +1,7 @@
 package io.github.ufukhalis.phoenix.mapper;
 
+import io.vavr.Tuple;
+
 import static io.github.ufukhalis.phoenix.util.Predicates.*;
 import static io.vavr.API.*;
 
@@ -7,12 +9,16 @@ public final class QueryResolver {
 
     private static final String HOLDER_TABLE_NAME = "$table_name";
     private static final String HOLDER_COLUMN_DETAILS = "$column_details";
+    private static final String HOLDER_COLUMN_VALUES = "$column_values";
 
     private static final String RAW_CREATE_TABLE_QUERY =
             "create table if not exists " + HOLDER_TABLE_NAME + " (" + HOLDER_COLUMN_DETAILS + ")";
 
     private static final String RAW_DROP_TABLE_QUERY =
             "drop table if exists " + HOLDER_TABLE_NAME;
+
+    private static final String RAW_UPSERT_TABLE_QUERY =
+            "upsert into " + HOLDER_TABLE_NAME + "(" + HOLDER_COLUMN_DETAILS + ") VALUES(" + HOLDER_COLUMN_VALUES + ")";
 
     public static String toCreateTable(EntityInfo entityInfo) {
         final String tableName = entityInfo.getTableName();
@@ -29,6 +35,16 @@ public final class QueryResolver {
 
     public static String toDropTable(EntityInfo entityInfo) {
         return RAW_DROP_TABLE_QUERY.replace(HOLDER_TABLE_NAME, entityInfo.getTableName());
+    }
+
+    public static String toSaveEntity(EntityInfo entityInfo) {
+        final String tableName = entityInfo.getTableName();
+
+        entityInfo.getColumnInfo()
+                .map(columnInfo -> Tuple.of(columnInfo.getColumnName(), columnInfo.getColumnValue()));
+
+
+        return "";
     }
 
     private static String resolveTypeForSQL(Class<?> fieldClass) {

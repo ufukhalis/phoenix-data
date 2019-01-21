@@ -1,6 +1,8 @@
 package io.github.ufukhalis.phoenix.data;
 
 import io.github.ufukhalis.phoenix.config.PhoenixDataProperties;
+import io.github.ufukhalis.phoenix.mapper.AnnotationResolver;
+import io.github.ufukhalis.phoenix.mapper.EntityInfo;
 import io.vavr.concurrent.Future;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
@@ -15,9 +17,7 @@ import java.sql.ResultSet;
 
 @Repository
 @EnableConfigurationProperties(PhoenixDataProperties.class)
-public class PhoenixRepository {
-
-    //https://github.com/rahulbaphana/apache-phoenix-jdbc-example
+public class PhoenixRepository <T> {
 
     private final Logger logger = LoggerFactory.getLogger(PhoenixRepository.class);
 
@@ -56,5 +56,14 @@ public class PhoenixRepository {
 
     public Future<ResultSet> executeQueryAsync(final String sql) {
         return Future.of(() -> executeQuery(sql));
+    }
+
+    public T save(T entity) {
+        final EntityInfo entityInfo = new AnnotationResolver().resolve(entity);
+        return null;
+    }
+
+    public Iterable<T> save(Iterable<T> entities) {
+        return null;
     }
 }
