@@ -6,4 +6,4 @@ before_install:
   - chmod +x mvnw
 
 after_success:
-  - mvn clean cobertura:cobertura coveralls:report
+  - mvn clean cobertura:cobertura coveralls:report DrepoToken=${COVERALLS_TOKEN}
