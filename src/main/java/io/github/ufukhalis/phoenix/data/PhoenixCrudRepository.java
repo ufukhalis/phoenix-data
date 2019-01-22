@@ -25,12 +25,10 @@ public abstract class PhoenixCrudRepository <T, ID> {
     private PhoenixRepository phoenixRepository;
 
     private Class<T> entityClass;
-    private Class<ID> primaryKeyClass;
 
     @PostConstruct
     public void init() {
         this.entityClass = (Class<T>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[0];
-        this.primaryKeyClass = (Class<ID>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[1];
     }
 
     public T save(T entity) {
@@ -54,11 +52,19 @@ public abstract class PhoenixCrudRepository <T, ID> {
     public Option<T> find(ID primaryKey) {
         final EntityInfo entityInfo = new AnnotationResolver().resolveClass(entityClass, Option.none());
 
-        final String rawSql = QueryResolver.toFind(entityInfo, primaryKey.toString());
+        final String rawSql = QueryResolver.toFind(entityInfo, primaryKey);
 
         final ResultSet resultSet = phoenixRepository.executeQuery(rawSql);
 
         return Try.of(() -> findAll(resultSet).headOption()).getOrElseThrow(e -> new RuntimeException("Entity find exception", e));
+    }
+
+    public int delete(ID primaryKey) {
+        final EntityInfo entityInfo = new AnnotationResolver().resolveClass(entityClass, Option.none());
+
+        final String rawSql = QueryResolver.toDelete(entityInfo, primaryKey);
+
+        return phoenixRepository.executeUpdate(rawSql);
     }
 
     private List<T> findAll(ResultSet resultSet) throws Exception {

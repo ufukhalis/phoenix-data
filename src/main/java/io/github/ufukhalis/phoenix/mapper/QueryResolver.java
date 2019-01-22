@@ -24,6 +24,9 @@ public final class QueryResolver {
     public static final String RAW_FIND_ONE_QUERY =
             "select * from " + HOLDER_TABLE_NAME + " where " + HOLDER_CONDITIONS + " limit 1";
 
+    public static final String RAW_DELETE_QUERY =
+            "delete from " + HOLDER_TABLE_NAME + " where " + HOLDER_CONDITIONS;
+
     public static String toCreateTable(EntityInfo entityInfo) {
         final String tableName = entityInfo.getTableName();
 
@@ -61,14 +64,26 @@ public final class QueryResolver {
                 .replace(HOLDER_COLUMN_VALUES, columnValues);
     }
 
-    public static String toFind(EntityInfo entityInfo, String primaryKeyValue) {
+    public static String toFind(EntityInfo entityInfo, Object primaryKeyValue) {
         final String tableName = entityInfo.getTableName();
 
         final ColumnInfo primaryKeyColumn = entityInfo.getColumnInfo().filter(ColumnInfo::isPrimaryKey).get();
 
-        final String conditions = primaryKeyColumn.getColumnName() + "=" + primaryKeyValue;
+        final String conditions = primaryKeyColumn.getColumnName() + "=" + resolveTypeForSQLValue(primaryKeyValue);
 
         return RAW_FIND_ONE_QUERY
+                .replace(HOLDER_TABLE_NAME, tableName)
+                .replace(HOLDER_CONDITIONS, conditions);
+    }
+
+    public static String toDelete(EntityInfo entityInfo, Object primaryKeyValue) {
+        final String tableName = entityInfo.getTableName();
+
+        final ColumnInfo primaryKeyColumn = entityInfo.getColumnInfo().filter(ColumnInfo::isPrimaryKey).get();
+
+        final String conditions = primaryKeyColumn.getColumnName() + "=" + resolveTypeForSQLValue(primaryKeyValue);
+
+        return RAW_DELETE_QUERY
                 .replace(HOLDER_TABLE_NAME, tableName)
                 .replace(HOLDER_CONDITIONS, conditions);
     }
