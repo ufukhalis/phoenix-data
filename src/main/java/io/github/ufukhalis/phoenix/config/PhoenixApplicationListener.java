@@ -34,13 +34,13 @@ public class PhoenixApplicationListener implements ApplicationListener<ContextRe
         final TableStrategy tableStrategy = TableStrategy.valueOf(phoenixDataProperties.getTableStrategy());
 
         Match(tableStrategy).of(
-                Case($(TableStrategy.CREATE), resolvedClasses.map(QueryResolver::toCreateTable).map(phoenixRepository::executeUpdate)),
+                Case($(TableStrategy.CREATE), () -> resolvedClasses.map(QueryResolver::toCreateTable).map(phoenixRepository::executeUpdate)),
                 Case($(TableStrategy.DROP_CREATE), () -> {
                     resolvedClasses.map(QueryResolver::toDropTable).map(phoenixRepository::executeUpdate);
                     return resolvedClasses.map(QueryResolver::toCreateTable).map(phoenixRepository::executeUpdate);
                 }),
-                Case($(TableStrategy.NONE), ""),
-                Case($(), new RuntimeException("Strategy is not valid"))
+                Case($(TableStrategy.NONE), () ->""),
+                Case($(), () -> new RuntimeException("Strategy is not valid"))
         );
     }
 }
