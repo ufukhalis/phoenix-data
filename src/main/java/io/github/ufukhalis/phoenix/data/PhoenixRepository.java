@@ -10,7 +10,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 @Repository
@@ -41,10 +40,12 @@ public class PhoenixRepository {
 
         final Connection connection = phoenixConnectionPool.getConnectionFromPool();
 
-        return Try.withResources(() -> connection.prepareStatement(sql))
-                .of(PreparedStatement::executeQuery)
+        return Try.of(() -> connection.prepareStatement(sql))
+                .map(preparedStatement ->
+                        Try.of(preparedStatement::executeQuery)
+                        .getOrElseThrow(e -> new RuntimeException("Query execution failed", e)))
                 .andFinally(() -> phoenixConnectionPool.releaseConnection(Option.of(connection)))
-                .getOrElseThrow(e -> new RuntimeException("Query execution failed", e));
+        .getOrElseThrow(e -> new RuntimeException("Query execution failed", e));
 
     }
 

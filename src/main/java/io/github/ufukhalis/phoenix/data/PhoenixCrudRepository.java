@@ -1,16 +1,22 @@
 package io.github.ufukhalis.phoenix.data;
 
 import io.github.ufukhalis.phoenix.mapper.AnnotationResolver;
+import io.github.ufukhalis.phoenix.mapper.Column;
 import io.github.ufukhalis.phoenix.mapper.EntityInfo;
 import io.github.ufukhalis.phoenix.mapper.QueryResolver;
+import io.github.ufukhalis.phoenix.util.Predicates;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
+import io.vavr.control.Try;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import java.lang.reflect.ParameterizedType;
 import java.sql.ResultSet;
+import java.util.ArrayList;
+
+import static io.vavr.API.*;
 
 @Repository
 public abstract class PhoenixCrudRepository <T, ID> {
@@ -45,26 +51,46 @@ public abstract class PhoenixCrudRepository <T, ID> {
         return entities;
     }
 
-    public T find(ID primaryKey) {
+    public Option<T> find(ID primaryKey) {
         final EntityInfo entityInfo = new AnnotationResolver().resolveClass(entityClass, Option.none());
 
         final String rawSql = QueryResolver.toFind(entityInfo, primaryKey.toString());
 
         final ResultSet resultSet = phoenixRepository.executeQuery(rawSql);
-        try {
-            while (resultSet.next()) {
-                System.out.println(resultSet.getInt("id"));
-            }
-        } catch (Exception e) {
-            System.out.println(e);
-        }
-//
-//        Try.of(() -> entityClass.getConstructor().newInstance())
-//                .map(entity -> {
-//                   entity.getClass().getDeclaredFields();
-//                   resultSet.get
-//                });
 
-        throw new RuntimeException("Not implemented yet");
+        return Try.of(() -> findAll(resultSet).headOption()).getOrElseThrow(e -> new RuntimeException("Entity find exception", e));
+    }
+
+    private List<T> findAll(ResultSet resultSet) throws Exception {
+        final java.util.List<T> entities = new ArrayList<>();
+        while (resultSet.next()) {
+            final T entity = entityClass.getConstructor().newInstance();
+
+            List.of(entityClass.getDeclaredFields())
+                    .forEach(field -> {
+                        Column column = field.getAnnotation(Column.class);
+                        final Object object = getValueFromResultSet(field.getType(), column.value(), resultSet);
+                        try {
+                            field.setAccessible(true);
+                            field.set(entity, object);
+                        } catch (IllegalAccessException e) {
+                            throw new RuntimeException("Field is not accessible", e);
+                        }
+                    });
+            entities.add(entity);
+        }
+        return List.ofAll(entities);
+    }
+
+    private Object getValueFromResultSet(Class<?> fieldClass, String columnName, ResultSet rs) {
+        return Match(fieldClass).of(
+                Case($(Predicates.isInstanceOfString), () -> Try.of(() -> rs.getString(columnName)).getOrElseThrow(e -> new RuntimeException("String casting error", e))),
+                Case($(Predicates.isInstanceOfInteger),() ->  Try.of(() -> rs.getInt(columnName)).getOrElseThrow(e -> new RuntimeException("Integer casting error", e))),
+                Case($(Predicates.isInstanceOfLong), () ->  Try.of(() -> rs.getLong(columnName)).getOrElseThrow(e -> new RuntimeException("Long casting error", e))),
+                Case($(Predicates.isInstanceOfDouble), () ->  Try.of(() -> rs.getDouble(columnName)).getOrElseThrow(e -> new RuntimeException("Double casting error", e))),
+                Case($(Predicates.isInstanceOfFloat), () ->  Try.of(() -> rs.getFloat(columnName)).getOrElseThrow(e -> new RuntimeException("Float casting error", e))),
+                Case($(Predicates.isInstanceOfBoolean), () ->  Try.of(() -> rs.getBoolean(columnName)).getOrElseThrow(e -> new RuntimeException("Boolean casting error", e))),
+                Case($(), () ->  new RuntimeException("Class type couldn't found"))
+        );
     }
 }
