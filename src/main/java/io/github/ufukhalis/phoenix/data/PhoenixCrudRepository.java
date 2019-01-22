@@ -76,12 +76,9 @@ public abstract class PhoenixCrudRepository <T, ID> {
                     .forEach(field -> {
                         Column column = field.getAnnotation(Column.class);
                         final Object object = getValueFromResultSet(field.getType(), column.value(), resultSet);
-                        try {
-                            field.setAccessible(true);
-                            field.set(entity, object);
-                        } catch (IllegalAccessException e) {
-                            throw new RuntimeException("Field is not accessible", e);
-                        }
+                        field.setAccessible(true);
+                        Try.run(() -> field.set(entity, object))
+                                .getOrElseThrow(e -> new RuntimeException("Field is not accessible", e));
                     });
             entities.add(entity);
         }
