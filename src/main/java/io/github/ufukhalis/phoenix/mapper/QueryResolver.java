@@ -19,7 +19,7 @@ public final class QueryResolver {
             "drop table if exists " + HOLDER_TABLE_NAME;
 
     private static final String RAW_UPSERT_TABLE_QUERY =
-            "upsert into " + HOLDER_TABLE_NAME + "(" + HOLDER_COLUMN_DETAILS + ") VALUES(" + HOLDER_COLUMN_VALUES + ")";
+            "upsert into " + HOLDER_TABLE_NAME + " (" + HOLDER_COLUMN_DETAILS + ") VALUES (" + HOLDER_COLUMN_VALUES + ")";
 
     public static final String RAW_FIND_ONE_QUERY =
             "select * from " + HOLDER_TABLE_NAME + " where " + HOLDER_CONDITIONS + " limit 1";
