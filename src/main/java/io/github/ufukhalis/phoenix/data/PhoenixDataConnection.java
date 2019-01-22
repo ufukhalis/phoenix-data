@@ -31,7 +31,9 @@ public class PhoenixDataConnection {
             logger.debug("Creating connection..");
 
             Class.forName(CLASS_NAME);
-            return DriverManager.getConnection(jdbcUrl);
+            final Connection connection = DriverManager.getConnection(jdbcUrl);
+            connection.setAutoCommit(true);
+            return connection;
         }).getOrElseThrow(e -> new RuntimeException("Couldn't connect to Phoenix server", e));
         return connection;
     }
