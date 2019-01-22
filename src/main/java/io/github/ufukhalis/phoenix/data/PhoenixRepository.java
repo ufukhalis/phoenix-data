@@ -1,11 +1,6 @@
 package io.github.ufukhalis.phoenix.data;
 
 import io.github.ufukhalis.phoenix.config.PhoenixDataProperties;
-import io.github.ufukhalis.phoenix.mapper.AnnotationResolver;
-import io.github.ufukhalis.phoenix.mapper.ColumnInfo;
-import io.github.ufukhalis.phoenix.mapper.EntityInfo;
-import io.github.ufukhalis.phoenix.mapper.QueryResolver;
-import io.vavr.collection.List;
 import io.vavr.concurrent.Future;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
@@ -14,26 +9,20 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Repository;
 
-import java.lang.reflect.ParameterizedType;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 @Repository
 @EnableConfigurationProperties(PhoenixDataProperties.class)
-public class PhoenixRepository <T, ID> {
+public class PhoenixRepository {
 
     private final Logger logger = LoggerFactory.getLogger(PhoenixRepository.class);
 
     private PhoenixConnectionPool phoenixConnectionPool;
 
-    private Class<T> entityClass;
-    private Class<ID> primaryKeyClass;
-
     public PhoenixRepository(PhoenixConnectionPool phoenixConnectionPool) {
         this.phoenixConnectionPool = phoenixConnectionPool;
-        this.entityClass = (Class<T>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[0];
-        this.primaryKeyClass = (Class<ID>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[1];
     }
 
     public int executeUpdate(final String sql) {
@@ -67,37 +56,4 @@ public class PhoenixRepository <T, ID> {
         return Future.of(() -> executeQuery(sql));
     }
 
-    public T save(T entity) {
-        final EntityInfo entityInfo = new AnnotationResolver().resolve(entity);
-        final String upsertSql = QueryResolver.toSaveEntity(entityInfo);
-
-        executeUpdate(upsertSql);
-
-        return entity;
-    }
-
-    public Iterable<T> save(Iterable<T> entities) {
-        final List<EntityInfo> entityInfoList = List.ofAll(entities)
-                .map(entity -> new AnnotationResolver().resolve(entity));
-
-        entityInfoList.map(QueryResolver::toSaveEntity)
-                .map(this::executeUpdate);
-        return entities;
-    }
-
-    public T find(ID primaryKey) {
-        final EntityInfo entityInfo = new AnnotationResolver().resolveClass(entityClass, Option.none());
-
-        final String rawSql = QueryResolver.toFind(entityInfo, primaryKey.toString());
-
-        final ResultSet resultSet = executeQuery(rawSql);
-//
-//        Try.of(() -> entityClass.getConstructor().newInstance())
-//                .map(entity -> {
-//                   entity.getClass().getDeclaredFields();
-//                   resultSet.get
-//                });
-
-        throw new RuntimeException("Not implemented yet");
-    }
 }
