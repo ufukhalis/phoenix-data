@@ -21,7 +21,7 @@ First add dependency to your project.
     <dependency>
         <groupId>io.github.ufukhalis.phoenix</groupId>
         <artifactId>phoenix-data</artifactId>
-        <version>0.0.1</version>
+        <version>0.0.3</version>
     </dependency>
 
 Then you need to specify your `@SpringBootApplication` annotation.
@@ -37,30 +37,68 @@ After then you need to add below properties to your application.properties file.
     phoenix.data.jdbcUrl = jdbc:phoenix:thin:url=http://localhost:8765;serialization=PROTOBUF
     phoenix.data.maxConnection = 10 # optional
     phoenix.data.minConnection = 5  # optional
+    phoenix.data.basePackage = {your.root.package} # com.test
+    phoenix.data.tableStrategy = CREATE # Other options are NONE and DROP_CREATE
     
-After these configurations, you are ready to use Phoenix Data repository class.
+After these configurations, let's create your repository class which is extends `PhoenixCrudRepository`.
 
-You can autowire the class like below
+    @Repository
+    public class YourRepository extends PhoenixCrudRepository<TestEntity, Long> {
+    
+    }
+
+Then we can define our basic `Entity` class.
+
+    @Entity("tableName)
+    public class TestEntity {
+        
+        @Column(value = "id", isPrimaryKey = true)
+        private Long id;
+        
+        @Column("name")
+        private String name;
+        
+    }    
+    
+Depends table creation strategy, when your application start to running
+related strategy will run.
+
+
+Then you can autowire your repository.
 
     @Autowired
-    PhoenixRepository phoenixRepository;
+    YourRepository yourRepository; 
+
+Save your entity
+
+    TestEntity entity = ...
+    yourRepository.save(entity);
+
+Find your entity by using its primary key
+
+    Optional<TestEntity> entity = yourRepository.find(1L);
+
+Delete your entity by using its primary key
+
+    yourRepository.delete(1L);
     
-Run your query via `phoenixRepository`
+
+Also you can execute raw queries via `yourRepository`
 
     String rawSql = "drop table if exists javatest";
-    int rowAffected = phoenixRepository.executeUpdate(rawSql);
+    int rowAffected = yourRepository.executeUpdate(rawSql);
     //...
 
 Or async call
 
     String rawSql = "drop table if exists javatest";
-    Future<Integer> rowAffected = phoenixRepository.executeUpdateAsync(rawSql);
+    Future<Integer> rowAffected = yourRepository.executeUpdateAsync(rawSql);
     //...
 
 Run your query and get results
 
     String rawSql = "select * from javatest";
-    ResultSet rs = phoenixRepository.executeQuery(rawSql);
+    ResultSet rs = yourRepository.executeQuery(rawSql);
     while(rs.next()) {
         //..
     }
@@ -68,7 +106,7 @@ Run your query and get results
 Or async call
 
     String rawSql = "select * from javatest";
-    Future<ResultSet> resultSetFuture = phoenixRepository.executeQueryAsync(rawSql);
+    Future<ResultSet> resultSetFuture = yourRepository.executeQueryAsync(rawSql);
     resultSetFuture.mapTry(resultSet -> {
         //..
     });

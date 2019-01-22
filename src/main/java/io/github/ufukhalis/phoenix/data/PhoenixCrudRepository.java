@@ -6,6 +6,7 @@ import io.github.ufukhalis.phoenix.mapper.EntityInfo;
 import io.github.ufukhalis.phoenix.mapper.QueryResolver;
 import io.github.ufukhalis.phoenix.util.Predicates;
 import io.vavr.collection.List;
+import io.vavr.concurrent.Future;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,6 +79,22 @@ public abstract class PhoenixCrudRepository <T, ID> {
         final String rawSql = QueryResolver.toDelete(entityInfo, primaryKey);
 
         return phoenixRepository.executeUpdate(rawSql);
+    }
+
+    public int executeUpdate(String sql) {
+        return phoenixRepository.executeUpdate(sql);
+    }
+
+    public ResultSet executeQuery(String sql) {
+        return phoenixRepository.executeQuery(sql);
+    }
+
+    public Future<Integer> executeUpdateAsync(String sql) {
+        return Future.of(() -> executeUpdate(sql));
+    }
+
+    public Future<ResultSet> executeQueryAsync(String sql) {
+        return Future.of(() -> executeQuery(sql));
     }
 
     private List<T> findAll(ResultSet resultSet) throws Exception {

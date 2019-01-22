@@ -49,12 +49,4 @@ public class PhoenixRepository {
 
     }
 
-    public Future<Integer> executeUpdateAsync(final String sql) {
-        return Future.of(() -> executeUpdate(sql));
-    }
-
-    public Future<ResultSet> executeQueryAsync(final String sql) {
-        return Future.of(() -> executeQuery(sql));
-    }
-
 }
