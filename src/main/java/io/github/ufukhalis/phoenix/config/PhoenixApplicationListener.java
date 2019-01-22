@@ -27,7 +27,7 @@ public class PhoenixApplicationListener implements ApplicationListener<ContextRe
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
         final Iterable<Class<?>> classes = PackageUtil.find(phoenixDataProperties.getBasePackage())
                 .stream()
-                .filter(c->c.isAnnotationPresent(Entity.class))
+                .filter(c -> c.isAnnotationPresent(Entity.class))
                 .collect(Collectors.toList());
 
         final List<EntityInfo> resolvedClasses = new AnnotationResolver().resolve(classes);
