@@ -15,6 +15,7 @@ import javax.annotation.PostConstruct;
 import java.lang.reflect.ParameterizedType;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Optional;
 
 import static io.vavr.API.*;
 
@@ -49,14 +50,26 @@ public abstract class PhoenixCrudRepository <T, ID> {
         return entities;
     }
 
-    public Option<T> find(ID primaryKey) {
+    public Optional<T> find(ID primaryKey) {
         final EntityInfo entityInfo = new AnnotationResolver().resolveClass(entityClass, Option.none());
 
         final String rawSql = QueryResolver.toFind(entityInfo, primaryKey);
 
         final ResultSet resultSet = phoenixRepository.executeQuery(rawSql);
 
-        return Try.of(() -> findAll(resultSet).headOption()).getOrElseThrow(e -> new RuntimeException("Entity find exception", e));
+        return Try.of(() -> findAll(resultSet).headOption().toJavaOptional())
+                .getOrElseThrow(e -> new RuntimeException("Entity find exception", e));
+    }
+
+    public java.util.List<T> findAll() {
+        final EntityInfo entityInfo = new AnnotationResolver().resolveClass(entityClass, Option.none());
+
+        final String rawSql = QueryResolver.toFindAll(entityInfo);
+
+        final ResultSet resultSet = phoenixRepository.executeQuery(rawSql);
+
+        return Try.of(() -> findAll(resultSet).asJava())
+                .getOrElseThrow(e -> new RuntimeException("Entity find all exceptions", e));
     }
 
     public int delete(ID primaryKey) {

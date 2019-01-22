@@ -4,6 +4,7 @@ import io.github.ufukhalis.phoenix.data.PhoenixRepository;
 import io.github.ufukhalis.phoenix.mapper.*;
 import io.github.ufukhalis.phoenix.util.PackageUtil;
 import io.vavr.collection.List;
+import io.vavr.control.Try;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -31,15 +32,18 @@ public class PhoenixApplicationListener implements ApplicationListener<ContextRe
 
         final List<EntityInfo> resolvedClasses = new AnnotationResolver().resolve(classes);
 
-        final TableStrategy tableStrategy = TableStrategy.valueOf(phoenixDataProperties.getTableStrategy());
+        final TableStrategy tableStrategy = Try.of(() -> TableStrategy.valueOf(phoenixDataProperties.getTableStrategy()))
+                .getOrElseThrow(e -> new RuntimeException("Strategy is not valid", e));
 
         Match(tableStrategy).of(
-                Case($(TableStrategy.CREATE), () -> resolvedClasses.map(QueryResolver::toCreateTable).map(phoenixRepository::executeUpdate)),
+                Case($(TableStrategy.CREATE), () ->
+                        resolvedClasses.map(QueryResolver::toCreateTable)
+                                .map(phoenixRepository::executeUpdate)),
                 Case($(TableStrategy.DROP_CREATE), () -> {
                     resolvedClasses.map(QueryResolver::toDropTable).map(phoenixRepository::executeUpdate);
                     return resolvedClasses.map(QueryResolver::toCreateTable).map(phoenixRepository::executeUpdate);
                 }),
-                Case($(TableStrategy.NONE), () ->""),
+                Case($(TableStrategy.NONE), () -> ""),
                 Case($(), () -> new RuntimeException("Strategy is not valid"))
         );
     }

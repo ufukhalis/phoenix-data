@@ -1,5 +1,7 @@
 package io.github.ufukhalis.phoenix.mapper;
 
+import io.vavr.Tuple;
+import io.vavr.Tuple2;
 import io.vavr.collection.List;
 
 import static io.github.ufukhalis.phoenix.util.Predicates.*;
@@ -21,10 +23,13 @@ public final class QueryResolver {
     private static final String RAW_UPSERT_TABLE_QUERY =
             "upsert into " + HOLDER_TABLE_NAME + " (" + HOLDER_COLUMN_DETAILS + ") VALUES (" + HOLDER_COLUMN_VALUES + ")";
 
-    public static final String RAW_FIND_ONE_QUERY =
+    private static final String RAW_FIND_ONE_QUERY =
             "select * from " + HOLDER_TABLE_NAME + " where " + HOLDER_CONDITIONS + " limit 1";
 
-    public static final String RAW_DELETE_QUERY =
+    private static final String RAW_FIND_ALL_QUERY =
+            "select * from " + HOLDER_TABLE_NAME;
+
+    private static final String RAW_DELETE_QUERY =
             "delete from " + HOLDER_TABLE_NAME + " where " + HOLDER_CONDITIONS;
 
     public static String toCreateTable(EntityInfo entityInfo) {
@@ -65,27 +70,24 @@ public final class QueryResolver {
     }
 
     public static String toFind(EntityInfo entityInfo, Object primaryKeyValue) {
-        final String tableName = entityInfo.getTableName();
-
-        final ColumnInfo primaryKeyColumn = entityInfo.getColumnInfo().filter(ColumnInfo::isPrimaryKey).get();
-
-        final String conditions = primaryKeyColumn.getColumnName() + "=" + resolveTypeForSQLValue(primaryKeyValue);
+        final Tuple2<String, String> query = prepareForQuery(entityInfo, primaryKeyValue);
 
         return RAW_FIND_ONE_QUERY
-                .replace(HOLDER_TABLE_NAME, tableName)
-                .replace(HOLDER_CONDITIONS, conditions);
+                .replace(HOLDER_TABLE_NAME, query._1)
+                .replace(HOLDER_CONDITIONS, query._2);
+    }
+
+    public static String toFindAll(EntityInfo entityInfo) {
+        return RAW_FIND_ALL_QUERY
+                .replace(HOLDER_TABLE_NAME, entityInfo.getTableName());
     }
 
     public static String toDelete(EntityInfo entityInfo, Object primaryKeyValue) {
-        final String tableName = entityInfo.getTableName();
-
-        final ColumnInfo primaryKeyColumn = entityInfo.getColumnInfo().filter(ColumnInfo::isPrimaryKey).get();
-
-        final String conditions = primaryKeyColumn.getColumnName() + "=" + resolveTypeForSQLValue(primaryKeyValue);
+        final Tuple2<String, String> query = prepareForQuery(entityInfo, primaryKeyValue);
 
         return RAW_DELETE_QUERY
-                .replace(HOLDER_TABLE_NAME, tableName)
-                .replace(HOLDER_CONDITIONS, conditions);
+                .replace(HOLDER_TABLE_NAME, query._1)
+                .replace(HOLDER_CONDITIONS, query._2);
     }
 
     private static String resolveTypeForSQL(Class<?> fieldClass) {
@@ -114,5 +116,15 @@ public final class QueryResolver {
                 Case($(true), " not null primary key"),
                 Case($(), "")
         );
+    }
+
+    private static Tuple2<String, String> prepareForQuery(EntityInfo entityInfo, Object primaryKeyValue) {
+        final String tableName = entityInfo.getTableName();
+
+        final ColumnInfo primaryKeyColumn = entityInfo.getColumnInfo().filter(ColumnInfo::isPrimaryKey).get();
+
+        final String conditions = primaryKeyColumn.getColumnName() + "=" + resolveTypeForSQLValue(primaryKeyValue);
+
+        return Tuple.of(tableName, conditions);
     }
 }
