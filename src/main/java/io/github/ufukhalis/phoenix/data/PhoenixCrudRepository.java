@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
+import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -103,6 +104,7 @@ public abstract class PhoenixCrudRepository <T, ID> {
             final T entity = entityClass.getConstructor().newInstance();
 
             List.of(entityClass.getDeclaredFields())
+                    .filter(field -> !field.getName().contains("jacoco"))
                     .forEach(field -> {
                         Column column = field.getAnnotation(Column.class);
                         final Object object = getValueFromResultSet(field.getType(), column.value(), resultSet);
