@@ -5,5 +5,5 @@ import io.github.ufukhalis.phoenix.model.TestEntity;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class TestRepository extends PhoenixCrudRepository<TestEntity, Integer> {
+public class TestRepository extends PhoenixCrudRepository<TestEntity, Long> {
 }
