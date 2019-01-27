@@ -35,7 +35,7 @@ public class AnnotationResolverTest {
     }
 
     @Test(expected = RuntimeException.class)
-    public void test() {
+    public void test_given_entity_has_no_annotation_throw_exception() {
         final TestModel testModel = new TestModel();
         testModel.setId(1L);
         testModel.setName("phoenix");
