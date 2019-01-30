@@ -13,6 +13,7 @@ public final class QueryResolver {
     private static final String HOLDER_COLUMN_DETAILS = "$column_details";
     private static final String HOLDER_COLUMN_VALUES = "$column_values";
     private static final String HOLDER_CONDITIONS = "$conditions";
+    private static final String HOLDER_FIELDS = "$fields";
 
     private static final String RAW_CREATE_TABLE_QUERY =
             "create table if not exists " + HOLDER_TABLE_NAME + " (" + HOLDER_COLUMN_DETAILS + ")";
@@ -25,6 +26,9 @@ public final class QueryResolver {
 
     private static final String RAW_FIND_ONE_QUERY =
             "select * from " + HOLDER_TABLE_NAME + " where " + HOLDER_CONDITIONS + " limit 1";
+
+    private static final String RAW_SELECT_FROM_QUERY =
+            "select " + HOLDER_FIELDS + " from " + HOLDER_TABLE_NAME;
 
     private static final String RAW_FIND_ALL_QUERY =
             "select * from " + HOLDER_TABLE_NAME;
@@ -77,6 +81,12 @@ public final class QueryResolver {
                 .replace(HOLDER_CONDITIONS, query._2);
     }
 
+    public static String toSelectFrom(EntityInfo entityInfo, String ...fields) {
+        return RAW_SELECT_FROM_QUERY
+                .replace(HOLDER_FIELDS, Option(List(fields).mkString(",")).getOrElse("*"))
+                .replace(HOLDER_TABLE_NAME, entityInfo.getTableName());
+    }
+
     public static String toFindAll(EntityInfo entityInfo) {
         return RAW_FIND_ALL_QUERY
                 .replace(HOLDER_TABLE_NAME, entityInfo.getTableName());
@@ -102,7 +112,7 @@ public final class QueryResolver {
         );
     }
 
-    private static String resolveTypeForSQLValue(Object object) {
+    public static String resolveTypeForSQLValue(Object object) {
         final Class<?> objectClass = object.getClass();
 
         return Match(objectClass).of(

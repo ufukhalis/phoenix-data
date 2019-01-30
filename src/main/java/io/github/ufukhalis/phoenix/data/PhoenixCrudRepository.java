@@ -4,6 +4,7 @@ import io.github.ufukhalis.phoenix.mapper.AnnotationResolver;
 import io.github.ufukhalis.phoenix.mapper.Column;
 import io.github.ufukhalis.phoenix.mapper.EntityInfo;
 import io.github.ufukhalis.phoenix.mapper.QueryResolver;
+import io.github.ufukhalis.phoenix.query.PhoenixQuery;
 import io.github.ufukhalis.phoenix.util.Predicates;
 import io.vavr.collection.List;
 import io.vavr.concurrent.Future;
@@ -61,6 +62,17 @@ public abstract class PhoenixCrudRepository <T, ID> {
 
         return Try.of(() -> findAll(resultSet).headOption().toJavaOptional())
                 .getOrElseThrow(e -> new RuntimeException("Entity find exception", e));
+    }
+
+    public java.util.List<T> find(PhoenixQuery phoenixQuery) {
+        if (!phoenixQuery.entityClass().equals(this.entityClass)) {
+            throw new RuntimeException("Entity class couldn't match");
+        }
+
+        final ResultSet resultSet = phoenixRepository.executeQuery(phoenixQuery.sql());
+
+        return Try.of(() -> findAll(resultSet).asJava())
+                .getOrElseThrow(e -> new RuntimeException("Entity find all exceptions", e));
     }
 
     public java.util.List<T> findAll() {
