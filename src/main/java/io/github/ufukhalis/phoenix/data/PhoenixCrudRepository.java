@@ -7,6 +7,7 @@ import io.github.ufukhalis.phoenix.mapper.QueryResolver;
 import io.github.ufukhalis.phoenix.query.PhoenixQuery;
 import io.github.ufukhalis.phoenix.util.Predicates;
 import io.vavr.collection.List;
+import io.vavr.collection.Set;
 import io.vavr.concurrent.Future;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
@@ -71,7 +72,7 @@ public abstract class PhoenixCrudRepository <T, ID> {
 
         final ResultSet resultSet = phoenixRepository.executeQuery(phoenixQuery.sql());
 
-        return Try.of(() -> findAll(resultSet).asJava())
+        return Try.of(() -> findAll(resultSet, phoenixQuery.fields()).asJava())
                 .getOrElseThrow(e -> new RuntimeException("Entity find all exceptions", e));
     }
 
@@ -110,13 +111,16 @@ public abstract class PhoenixCrudRepository <T, ID> {
         return Future.of(() -> executeQuery(sql));
     }
 
-    private List<T> findAll(ResultSet resultSet) throws Exception {
+    private List<T> findAll(ResultSet resultSet, String ...fields) throws Exception {
         final java.util.List<T> entities = new ArrayList<>();
+        final Set<String> fieldSet = Set(fields);
+
         while (resultSet.next()) {
             final T entity = entityClass.getConstructor().newInstance();
 
             List.of(entityClass.getDeclaredFields())
                     .filter(field -> !field.getName().contains("jacoco"))
+                    .filter(field -> !fieldSet.isEmpty() && fieldSet.contains(field.getName()))
                     .forEach(field -> {
                         Column column = field.getAnnotation(Column.class);
                         final Object object = getValueFromResultSet(field.getType(), column.value(), resultSet);

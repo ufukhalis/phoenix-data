@@ -9,6 +9,7 @@ public class PhoenixQuery {
 
     private Class<?> entityClass;
     private String sql;
+    private String[] fields;
 
     private void Query() {
 
@@ -17,7 +18,7 @@ public class PhoenixQuery {
     public static class Builder {
 
         private Class<?> entityClass;
-
+        private String[] fields;
         private String rawSql = "";
 
         public Builder(Class<?> entityClass) {
@@ -26,7 +27,7 @@ public class PhoenixQuery {
 
         public Builder select(String ...fields) {
             final EntityInfo entityInfo = new AnnotationResolver().resolveClass(entityClass, Option.none());
-
+            this.fields = fields;
             this.rawSql += QueryResolver.toSelectFrom(entityInfo, fields);
 
             return this;
@@ -68,6 +69,7 @@ public class PhoenixQuery {
             final PhoenixQuery query = new PhoenixQuery();
             query.entityClass = this.entityClass;
             query.sql = this.rawSql.replace("  ", " ");
+            query.fields = this.fields;
             return query;
         }
 
@@ -79,6 +81,10 @@ public class PhoenixQuery {
 
     public Class<?> entityClass() {
         return this.entityClass;
+    }
+
+    public String[] fields() {
+        return this.fields;
     }
 
     public enum Operator {

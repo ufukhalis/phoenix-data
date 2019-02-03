@@ -83,7 +83,7 @@ public final class QueryResolver {
 
     public static String toSelectFrom(EntityInfo entityInfo, String ...fields) {
         return RAW_SELECT_FROM_QUERY
-                .replace(HOLDER_FIELDS, Option(List(fields).mkString(",")).getOrElse("*"))
+                .replace(HOLDER_FIELDS, fields.length > 0 ? List(fields).mkString(",") : "*")
                 .replace(HOLDER_TABLE_NAME, entityInfo.getTableName());
     }
 
