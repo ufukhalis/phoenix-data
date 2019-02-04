@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
-import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -29,6 +28,8 @@ public abstract class PhoenixCrudRepository <T, ID> {
     @Autowired
     private PhoenixRepository phoenixRepository;
 
+    private AnnotationResolver annotationResolver = new AnnotationResolver();
+
     private Class<T> entityClass;
 
     @PostConstruct
@@ -37,7 +38,7 @@ public abstract class PhoenixCrudRepository <T, ID> {
     }
 
     public T save(T entity) {
-        final EntityInfo entityInfo = new AnnotationResolver().resolve(entity);
+        final EntityInfo entityInfo = annotationResolver.resolve(entity);
         final String upsertSql = QueryResolver.toSaveEntity(entityInfo);
 
         phoenixRepository.executeUpdate(upsertSql);
@@ -47,7 +48,7 @@ public abstract class PhoenixCrudRepository <T, ID> {
 
     public Iterable<T> save(Iterable<T> entities) {
         final List<EntityInfo> entityInfoList = List.ofAll(entities)
-                .map(entity -> new AnnotationResolver().resolve(entity));
+                .map(entity -> annotationResolver.resolve(entity));
 
         entityInfoList.map(QueryResolver::toSaveEntity)
                 .map(sql -> phoenixRepository.executeUpdate(sql));
@@ -55,7 +56,7 @@ public abstract class PhoenixCrudRepository <T, ID> {
     }
 
     public Optional<T> find(ID primaryKey) {
-        final EntityInfo entityInfo = new AnnotationResolver().resolveClass(entityClass, Option.none());
+        final EntityInfo entityInfo = annotationResolver.resolveClass(entityClass, Option.none());
 
         final String rawSql = QueryResolver.toFind(entityInfo, primaryKey);
 
@@ -77,7 +78,7 @@ public abstract class PhoenixCrudRepository <T, ID> {
     }
 
     public java.util.List<T> findAll() {
-        final EntityInfo entityInfo = new AnnotationResolver().resolveClass(entityClass, Option.none());
+        final EntityInfo entityInfo = annotationResolver.resolveClass(entityClass, Option.none());
 
         final String rawSql = QueryResolver.toFindAll(entityInfo);
 
@@ -88,7 +89,7 @@ public abstract class PhoenixCrudRepository <T, ID> {
     }
 
     public int delete(ID primaryKey) {
-        final EntityInfo entityInfo = new AnnotationResolver().resolveClass(entityClass, Option.none());
+        final EntityInfo entityInfo = annotationResolver.resolveClass(entityClass, Option.none());
 
         final String rawSql = QueryResolver.toDelete(entityInfo, primaryKey);
 

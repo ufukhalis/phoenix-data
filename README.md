@@ -49,7 +49,7 @@ After these configurations, let's create your repository class which is extends 
 
 Then we can define our basic `Entity` class.
 
-    @Entity("tableName)
+    @Entity("tableName")
     public class TestEntity {
         
         @Column(value = "id", isPrimaryKey = true)
@@ -82,6 +82,13 @@ Delete your entity by using its primary key
 
     yourRepository.delete(1L);
     
+Create query by using `PhoenixQuery` class.
+
+    final PhoenixQuery phoenixQuery = new PhoenixQuery.Builder(YourEntity.class)
+                    .select()
+                    .build();
+
+    YourEntity entity = yourRepository.find(phoenixQuery);
 
 Also you can execute raw queries via `yourRepository`
 
