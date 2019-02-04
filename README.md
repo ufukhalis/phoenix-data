@@ -24,9 +24,13 @@ First add dependency to your project.
         <version>0.0.3</version>
     </dependency>
 
-Then you need to specify your `@SpringBootApplication` annotation.
+Then create a class add `@EnablePhoenixData` annotation.
 
-    @SpringBootApplication(scanBasePackages = {"io.github.ufukhalis.phoenix.*", "{this.is.your.base.package}"})
+    @EnablePhoenixData
+    @Configuration
+    public class PhoenixConfig {
+    
+    }
 
 And you need to add HOME_HADOOP your path or you can specify like below
 
