@@ -4,8 +4,10 @@ import io.github.ufukhalis.phoenix.mapper.AnnotationResolver;
 import io.github.ufukhalis.phoenix.mapper.Column;
 import io.github.ufukhalis.phoenix.mapper.EntityInfo;
 import io.github.ufukhalis.phoenix.mapper.QueryResolver;
+import io.github.ufukhalis.phoenix.query.PhoenixQuery;
 import io.github.ufukhalis.phoenix.util.Predicates;
 import io.vavr.collection.List;
+import io.vavr.collection.Set;
 import io.vavr.concurrent.Future;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
@@ -13,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
-import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -27,6 +28,8 @@ public abstract class PhoenixCrudRepository <T, ID> {
     @Autowired
     private PhoenixRepository phoenixRepository;
 
+    private AnnotationResolver annotationResolver = new AnnotationResolver();
+
     private Class<T> entityClass;
 
     @PostConstruct
@@ -35,7 +38,7 @@ public abstract class PhoenixCrudRepository <T, ID> {
     }
 
     public T save(T entity) {
-        final EntityInfo entityInfo = new AnnotationResolver().resolve(entity);
+        final EntityInfo entityInfo = annotationResolver.resolve(entity);
         final String upsertSql = QueryResolver.toSaveEntity(entityInfo);
 
         phoenixRepository.executeUpdate(upsertSql);
@@ -45,7 +48,7 @@ public abstract class PhoenixCrudRepository <T, ID> {
 
     public Iterable<T> save(Iterable<T> entities) {
         final List<EntityInfo> entityInfoList = List.ofAll(entities)
-                .map(entity -> new AnnotationResolver().resolve(entity));
+                .map(entity -> annotationResolver.resolve(entity));
 
         entityInfoList.map(QueryResolver::toSaveEntity)
                 .map(sql -> phoenixRepository.executeUpdate(sql));
@@ -53,7 +56,7 @@ public abstract class PhoenixCrudRepository <T, ID> {
     }
 
     public Optional<T> find(ID primaryKey) {
-        final EntityInfo entityInfo = new AnnotationResolver().resolveClass(entityClass, Option.none());
+        final EntityInfo entityInfo = annotationResolver.resolveClass(entityClass, Option.none());
 
         final String rawSql = QueryResolver.toFind(entityInfo, primaryKey);
 
@@ -63,8 +66,19 @@ public abstract class PhoenixCrudRepository <T, ID> {
                 .getOrElseThrow(e -> new RuntimeException("Entity find exception", e));
     }
 
+    public java.util.List<T> find(PhoenixQuery phoenixQuery) {
+        if (!phoenixQuery.entityClass().equals(this.entityClass)) {
+            throw new RuntimeException("Entity class couldn't match");
+        }
+
+        final ResultSet resultSet = phoenixRepository.executeQuery(phoenixQuery.sql());
+
+        return Try.of(() -> findAll(resultSet, phoenixQuery.fields()).asJava())
+                .getOrElseThrow(e -> new RuntimeException("Entity find all exceptions", e));
+    }
+
     public java.util.List<T> findAll() {
-        final EntityInfo entityInfo = new AnnotationResolver().resolveClass(entityClass, Option.none());
+        final EntityInfo entityInfo = annotationResolver.resolveClass(entityClass, Option.none());
 
         final String rawSql = QueryResolver.toFindAll(entityInfo);
 
@@ -75,7 +89,7 @@ public abstract class PhoenixCrudRepository <T, ID> {
     }
 
     public int delete(ID primaryKey) {
-        final EntityInfo entityInfo = new AnnotationResolver().resolveClass(entityClass, Option.none());
+        final EntityInfo entityInfo = annotationResolver.resolveClass(entityClass, Option.none());
 
         final String rawSql = QueryResolver.toDelete(entityInfo, primaryKey);
 
@@ -98,13 +112,16 @@ public abstract class PhoenixCrudRepository <T, ID> {
         return Future.of(() -> executeQuery(sql));
     }
 
-    private List<T> findAll(ResultSet resultSet) throws Exception {
+    private List<T> findAll(ResultSet resultSet, String ...fields) throws Exception {
         final java.util.List<T> entities = new ArrayList<>();
+        final Set<String> fieldSet = Set(fields);
+
         while (resultSet.next()) {
             final T entity = entityClass.getConstructor().newInstance();
 
             List.of(entityClass.getDeclaredFields())
                     .filter(field -> !field.getName().contains("jacoco"))
+                    .filter(field -> !fieldSet.isEmpty() && fieldSet.contains(field.getName()))
                     .forEach(field -> {
                         Column column = field.getAnnotation(Column.class);
                         final Object object = getValueFromResultSet(field.getType(), column.value(), resultSet);
