@@ -32,7 +32,7 @@ public class PhoenixRepository {
         return Try.withResources(connection::createStatement)
                 .of(statement -> statement.executeUpdate(sql))
                 .andFinally(() -> phoenixConnectionPool.releaseConnection(Option.of(connection)))
-                .getOrElseThrow(e -> new RuntimeException("Query execution failed", e));
+                .getOrElseThrow(e -> new RuntimeException("PhoenixQuery execution failed", e));
     }
 
     public ResultSet executeQuery(final String sql) {
@@ -43,9 +43,9 @@ public class PhoenixRepository {
         return Try.of(() -> connection.prepareStatement(sql))
                 .map(preparedStatement ->
                         Try.of(preparedStatement::executeQuery)
-                        .getOrElseThrow(e -> new RuntimeException("Query execution failed", e)))
+                        .getOrElseThrow(e -> new RuntimeException("PhoenixQuery execution failed", e)))
                 .andFinally(() -> phoenixConnectionPool.releaseConnection(Option.of(connection)))
-        .getOrElseThrow(e -> new RuntimeException("Query execution failed", e));
+        .getOrElseThrow(e -> new RuntimeException("PhoenixQuery execution failed", e));
 
     }
 

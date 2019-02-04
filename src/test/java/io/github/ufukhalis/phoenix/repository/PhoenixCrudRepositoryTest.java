@@ -4,6 +4,8 @@ import io.github.ufukhalis.phoenix.config.PhoenixDataConfig;
 import io.github.ufukhalis.phoenix.data.PhoenixConnectionPool;
 import io.github.ufukhalis.phoenix.data.PhoenixRepository;
 import io.github.ufukhalis.phoenix.model.TestEntity;
+import io.github.ufukhalis.phoenix.model.TestModel;
+import io.github.ufukhalis.phoenix.query.PhoenixQuery;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -103,6 +105,26 @@ public class PhoenixCrudRepositoryTest {
         when(resultSet.next()).thenReturn(true).thenReturn(false);
 
         Assert.assertTrue(!testRepository.findAll().isEmpty());
+    }
+
+    @Test
+    public void test_findByQuery_shoud_not_return_empty_list() throws SQLException {
+        when(resultSet.getLong("id")).thenReturn(1L);
+        when(resultSet.getString("name")).thenReturn("phoenix");
+        when(resultSet.next()).thenReturn(true).thenReturn(false);
+
+        final PhoenixQuery query = new PhoenixQuery.Builder(TestEntity.class)
+                .select("id", "name").build();
+
+        Assert.assertTrue(!testRepository.find(query).isEmpty());
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void test_findByQuery_different_entity_class_should_throw_runtime_exception() {
+        final PhoenixQuery query = new PhoenixQuery.Builder(TestModel.class)
+                .select("id", "name").build();
+
+        testRepository.find(query);
     }
 
     private static TestEntity buildMockEntity() {

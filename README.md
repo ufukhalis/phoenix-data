@@ -24,9 +24,13 @@ First add dependency to your project.
         <version>0.0.3</version>
     </dependency>
 
-Then you need to specify your `@SpringBootApplication` annotation.
+Then create a class add `@EnablePhoenixData` annotation.
 
-    @SpringBootApplication(scanBasePackages = {"io.github.ufukhalis.phoenix.*", "{this.is.your.base.package}"})
+    @EnablePhoenixData
+    @Configuration
+    public class PhoenixConfig {
+    
+    }
 
 And you need to add HOME_HADOOP your path or you can specify like below
 
@@ -49,7 +53,7 @@ After these configurations, let's create your repository class which is extends 
 
 Then we can define our basic `Entity` class.
 
-    @Entity("tableName)
+    @Entity("tableName")
     public class TestEntity {
         
         @Column(value = "id", isPrimaryKey = true)
@@ -82,6 +86,13 @@ Delete your entity by using its primary key
 
     yourRepository.delete(1L);
     
+Create query by using `PhoenixQuery` class.
+
+    final PhoenixQuery phoenixQuery = new PhoenixQuery.Builder(YourEntity.class)
+                    .select()
+                    .build();
+
+    YourEntity entity = yourRepository.find(phoenixQuery);
 
 Also you can execute raw queries via `yourRepository`
 
