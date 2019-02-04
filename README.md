@@ -21,7 +21,7 @@ First add dependency to your project.
     <dependency>
         <groupId>io.github.ufukhalis.phoenix</groupId>
         <artifactId>phoenix-data</artifactId>
-        <version>0.0.3</version>
+        <version>0.0.4</version>
     </dependency>
 
 Then create a class add `@EnablePhoenixData` annotation.
