@@ -77,6 +77,13 @@ public abstract class PhoenixCrudRepository <T, ID> {
                 .getOrElseThrow(e -> new RuntimeException("Entity find all exceptions", e));
     }
 
+    public java.util.List<T> find(String rawSql, String ...fields) {
+        final ResultSet resultSet = phoenixRepository.executeQuery(rawSql);
+
+        return Try.of(() -> findAll(resultSet, fields).asJava())
+                .getOrElseThrow(e -> new RuntimeException("Entity find all exceptions", e));
+    }
+
     public java.util.List<T> findAll() {
         final EntityInfo entityInfo = annotationResolver.resolveClass(entityClass, Option.none());
 

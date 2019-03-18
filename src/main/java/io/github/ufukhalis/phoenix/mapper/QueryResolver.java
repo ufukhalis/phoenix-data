@@ -14,6 +14,8 @@ public final class QueryResolver {
     private static final String HOLDER_COLUMN_VALUES = "$column_values";
     private static final String HOLDER_CONDITIONS = "$conditions";
     private static final String HOLDER_FIELDS = "$fields";
+    private static final String HOLDER_CURSOR_NAME = "$cursor_name";
+    private static final String HOLDER_SELECT_STATEMENT = "$select_statement";
 
     private static final String RAW_CREATE_TABLE_QUERY =
             "create table if not exists " + HOLDER_TABLE_NAME + " (" + HOLDER_COLUMN_DETAILS + ")";
@@ -35,6 +37,18 @@ public final class QueryResolver {
 
     private static final String RAW_DELETE_QUERY =
             "delete from " + HOLDER_TABLE_NAME + " where " + HOLDER_CONDITIONS;
+
+    private static final String RAW_DECLARE_CURSOR =
+            "DECLARE CURSOR " + HOLDER_CURSOR_NAME + " FOR " + HOLDER_SELECT_STATEMENT;
+
+    private static final String RAW_OPEN_CURSOR =
+            "OPEN CURSOR " + HOLDER_CURSOR_NAME;
+
+    private static final String RAW_FETCH_FROM_CURSOR =
+            "FETCH NEXT " + HOLDER_CONDITIONS + " ROWS FROM " + HOLDER_CURSOR_NAME;
+
+    private static final String RAW_CLOSE_CURSOR =
+            "CLOSE " + HOLDER_CURSOR_NAME;
 
     public static String toCreateTable(EntityInfo entityInfo) {
         final String tableName = entityInfo.getTableName();
@@ -98,6 +112,28 @@ public final class QueryResolver {
         return RAW_DELETE_QUERY
                 .replace(HOLDER_TABLE_NAME, query._1)
                 .replace(HOLDER_CONDITIONS, query._2);
+    }
+
+    public static String toDeclareCursor(String cursorName, String selectStatement) {
+        return RAW_DECLARE_CURSOR
+                .replace(HOLDER_CURSOR_NAME, cursorName)
+                .replace(HOLDER_SELECT_STATEMENT, selectStatement);
+    }
+
+    public static String toOpenCursor(String cursorName) {
+        return RAW_OPEN_CURSOR
+                .replace(HOLDER_CURSOR_NAME, cursorName);
+    }
+
+    public static String toFetchFromCursor(String cursorName, int limit) {
+        return RAW_FETCH_FROM_CURSOR
+                .replace(HOLDER_CURSOR_NAME, cursorName)
+                .replace(HOLDER_CONDITIONS, limit + "");
+    }
+
+    public static String toCloseCursor(String cursorName) {
+        return RAW_CLOSE_CURSOR
+                .replace(HOLDER_CURSOR_NAME, cursorName);
     }
 
     private static String resolveTypeForSQL(Class<?> fieldClass) {

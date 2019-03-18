@@ -21,7 +21,7 @@ First add dependency to your project.
     <dependency>
         <groupId>io.github.ufukhalis.phoenix</groupId>
         <artifactId>phoenix-data</artifactId>
-        <version>0.0.4</version>
+        <version>0.0.5</version>
     </dependency>
 
 Then create a class add `@EnablePhoenixData` annotation.
@@ -31,10 +31,6 @@ Then create a class add `@EnablePhoenixData` annotation.
     public class PhoenixConfig {
     
     }
-
-And you need to add HOME_HADOOP your path or you can specify like below
-
-    System.setProperty("hadoop.home.dir", "{hadoop.path}");
 
 After then you need to add below properties to your application.properties file.
 
@@ -125,7 +121,7 @@ Or async call
 Note
 ---
 
-This project is still under development.
+This project is still under development. But you can use in your projects.
 
 For more information about Apache Phoenix, check the site https://phoenix.apache.org/
 
